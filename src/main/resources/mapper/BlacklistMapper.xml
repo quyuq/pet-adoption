@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.petadoption.mapper.BlacklistMapper">
+
+    <resultMap id="BlacklistResultMap" type="Blacklist">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="reason" column="reason"/>
+        <result property="createTime" column="create_time"/>
+        
+        <association property="user" javaType="com.petadoption.entity.User">
+            <id property="id" column="u_id"/>
+            <result property="username" column="username"/>
+            <result property="realName" column="real_name"/>
+            <result property="phone" column="phone"/>
+        </association>
+    </resultMap>
+
+    <insert id="insert" parameterType="Blacklist">
+        INSERT INTO t_blacklist (user_id, reason)
+        VALUES (#{userId}, #{reason})
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM t_blacklist WHERE id = #{id}
+    </delete>
+    
+    <delete id="deleteByUserId">
+        DELETE FROM t_blacklist WHERE user_id = #{userId}
+    </delete>
+
+    <select id="selectAll" resultMap="BlacklistResultMap">
+        SELECT b.*, u.id as u_id, u.username, u.real_name, u.phone
+        FROM t_blacklist b
+        LEFT JOIN t_user u ON b.user_id = u.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                u.username LIKE CONCAT('%', #{keyword}, '%') OR
+                u.real_name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY b.create_time DESC
+    </select>
+    
+    <select id="checkUserInBlacklist" resultType="int">
+        SELECT COUNT(1) FROM t_blacklist WHERE user_id = #{userId}
+    </select>
+    
+    <select id="selectByUserId" resultMap="BlacklistResultMap">
+        SELECT * FROM t_blacklist WHERE user_id = #{userId} LIMIT 1
+    </select>
+
+</mapper>

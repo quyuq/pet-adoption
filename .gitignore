@@ -1,0 +1,6 @@
+# 忽略Maven编译目录
+target/
+# 忽略IDEA配置目录
+.idea/
+# 忽略日志文件
+*.log

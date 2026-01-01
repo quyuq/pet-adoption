@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.petadoption.mapper.MessageMapper">
+    <resultMap id="MessageResultMap" type="com.petadoption.entity.Message">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="content" column="content"/>
+        <result property="isRead" column="is_read"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.petadoption.entity.Message">
+        INSERT INTO t_message (user_id, content, is_read)
+        VALUES (#{userId}, #{content}, 0)
+    </insert>
+
+    <update id="updateReadStatus">
+        UPDATE t_message SET is_read = 1 WHERE id = #{id}
+    </update>
+
+    <select id="selectByUserId" resultMap="MessageResultMap">
+        SELECT * FROM t_message WHERE user_id = #{userId} ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectUnreadCount" resultType="int">
+        SELECT COUNT(*) FROM t_message WHERE user_id = #{userId} AND is_read = 0
+    </select>
+</mapper>

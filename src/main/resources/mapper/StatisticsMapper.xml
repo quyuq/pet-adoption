@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.petadoption.mapper.StatisticsMapper">
+
+    <select id="countPetByStatus" resultType="com.petadoption.entity.StatsData">
+        SELECT 
+            CASE status 
+                WHEN 0 THEN '待领养' 
+                WHEN 1 THEN '申请中' 
+                WHEN 2 THEN '已领养' 
+                WHEN 3 THEN '医疗中'
+                ELSE '其他' 
+            END as name,
+            COUNT(*) as value
+        FROM t_pet
+        GROUP BY status
+    </select>
+    
+    <select id="countPetBySpecies" resultType="com.petadoption.entity.StatsData">
+        SELECT species as name, COUNT(*) as value
+        FROM t_pet
+        GROUP BY species
+    </select>
+    
+    <select id="countApplyDaily" resultType="com.petadoption.entity.StatsData">
+        SELECT DATE_FORMAT(create_time, '%Y-%m-%d') as name, COUNT(*) as value
+        FROM t_adoption_apply
+        WHERE create_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        GROUP BY DATE_FORMAT(create_time, '%Y-%m-%d')
+        ORDER BY name
+    </select>
+    
+    <select id="getTopViewedPets" resultType="com.petadoption.entity.StatsData">
+        SELECT name, view_count as value
+        FROM t_pet
+        ORDER BY view_count DESC
+        LIMIT 5
+    </select>
+    
+    <select id="getTopAppliedPets" resultType="com.petadoption.entity.StatsData">
+        SELECT name, apply_count as value
+        FROM t_pet
+        ORDER BY apply_count DESC
+        LIMIT 5
+    </select>
+    
+    <select id="getOverviewStats" resultType="map">
+        SELECT
+            (SELECT COUNT(*) FROM t_user WHERE role = 2) as userCount,
+            (SELECT COUNT(*) FROM t_pet) as petCount,
+            (SELECT COUNT(*) FROM t_pet WHERE status = 2) as adoptedCount,
+            (SELECT COUNT(*) FROM t_adoption_apply) as applyCount
+    </select>
+
+</mapper>

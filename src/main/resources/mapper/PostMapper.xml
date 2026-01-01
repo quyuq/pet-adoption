@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.petadoption.mapper.PostMapper">
+
+    <resultMap id="PostResultMap" type="com.petadoption.entity.Post">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="content" column="content"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="createTime" column="create_time"/>
+        
+        <association property="user" javaType="com.petadoption.entity.User">
+            <id property="id" column="u_id"/>
+            <result property="username" column="username"/>
+            <result property="realName" column="real_name"/>
+        </association>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.petadoption.entity.Post" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_post (user_id, content, image_url, view_count)
+        VALUES (#{userId}, #{content}, #{imageUrl}, 0)
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM t_post WHERE id = #{id}
+    </delete>
+
+    <select id="selectAll" resultMap="PostResultMap">
+        SELECT p.*, u.id as u_id, u.username, u.real_name 
+        FROM t_post p
+        LEFT JOIN t_user u ON p.user_id = u.id
+        ORDER BY p.create_time DESC
+    </select>
+    
+    <select id="selectByUserId" resultMap="PostResultMap">
+        SELECT p.*, u.id as u_id, u.username, u.real_name 
+        FROM t_post p
+        LEFT JOIN t_user u ON p.user_id = u.id
+        WHERE p.user_id = #{userId}
+        ORDER BY p.create_time DESC
+    </select>
+    
+    <select id="selectById" resultMap="PostResultMap">
+        SELECT p.*, u.id as u_id, u.username, u.real_name 
+        FROM t_post p
+        LEFT JOIN t_user u ON p.user_id = u.id
+        WHERE p.id = #{id}
+    </select>
+    
+    <update id="incrementViewCount">
+        UPDATE t_post SET view_count = view_count + 1 WHERE id = #{id}
+    </update>
+
+</mapper>

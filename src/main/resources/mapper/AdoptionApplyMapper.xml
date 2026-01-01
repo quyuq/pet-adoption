@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.petadoption.mapper.AdoptionApplyMapper">
+
+    <resultMap id="ApplyResultMap" type="com.petadoption.entity.AdoptionApply">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="petId" column="pet_id"/>
+        <result property="applyReason" column="apply_reason"/>
+        <result property="experience" column="experience"/>
+        <result property="livingCondition" column="living_condition"/>
+        <result property="status" column="status"/>
+        <result property="rejectReason" column="reject_reason"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        
+        <!-- 关联的用户信息 -->
+        <association property="user" javaType="com.petadoption.entity.User">
+            <id property="id" column="u_id"/>
+            <result property="username" column="username"/>
+            <result property="realName" column="real_name"/>
+            <result property="phone" column="phone"/>
+        </association>
+        
+        <!-- 关联的宠物信息 -->
+        <association property="pet" javaType="com.petadoption.entity.Pet">
+            <id property="id" column="p_id"/>
+            <result property="name" column="pet_name"/>
+            <result property="imageUrl" column="pet_image"/>
+            <result property="shelterId" column="shelter_id"/>
+        </association>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        a.id, a.user_id, a.pet_id, a.apply_reason, a.experience, a.living_condition, 
+        a.status, a.reject_reason, a.create_time, a.update_time,
+        u.id as u_id, u.username, u.real_name, u.phone,
+        p.id as p_id, p.name as pet_name, p.image_url as pet_image, p.shelter_id
+    </sql>
+    
+    <select id="selectById" resultMap="ApplyResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_adoption_apply a
+        LEFT JOIN t_user u ON a.user_id = u.id
+        LEFT JOIN t_pet p ON a.pet_id = p.id
+        WHERE a.id = #{id}
+    </select>
+    
+    <insert id="insert" parameterType="com.petadoption.entity.AdoptionApply" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_adoption_apply (user_id, pet_id, apply_reason, experience, living_condition, status)
+        VALUES (#{userId}, #{petId}, #{applyReason}, #{experience}, #{livingCondition}, #{status})
+    </insert>
+    
+    <update id="updateStatus">
+        UPDATE t_adoption_apply
+        SET status = #{status},
+            reject_reason = #{rejectReason}
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 查询用户的申请记录 -->
+    <select id="selectByUserId" resultMap="ApplyResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_adoption_apply a
+        LEFT JOIN t_user u ON a.user_id = u.id
+        LEFT JOIN t_pet p ON a.pet_id = p.id
+        WHERE a.user_id = #{userId}
+        ORDER BY a.create_time DESC
+    </select>
+    
+    <!-- 查询收容所下的宠物的申请记录 -->
+    <select id="selectByShelterId" resultMap="ApplyResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_adoption_apply a
+        LEFT JOIN t_user u ON a.user_id = u.id
+        LEFT JOIN t_pet p ON a.pet_id = p.id
+        WHERE p.shelter_id = #{shelterId}
+        <if test="status != null">
+            AND a.status = #{status}
+        </if>
+        ORDER BY a.create_time ASC
+    </select>
+    
+    <!-- 检查是否有进行中的申请 -->
+    <select id="checkExistApply" resultType="int">
+        SELECT COUNT(1) 
+        FROM t_adoption_apply 
+        WHERE user_id = #{userId} AND pet_id = #{petId} AND status = 0
+    </select>
+    
+    <!-- 自动拒绝其他申请（当某宠物被领养后） -->
+    <update id="rejectOtherApplies">
+        UPDATE t_adoption_apply
+        SET status = 4 -- 4表示彻底拒绝
+        WHERE pet_id = #{petId} AND id != #{approvedApplyId} AND status = 0
+    </update>
+
+</mapper>

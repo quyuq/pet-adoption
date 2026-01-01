@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.petadoption.mapper.SysLogMapper">
+
+    <resultMap id="SysLogResultMap" type="com.petadoption.entity.SysLog">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="operation" column="operation"/>
+        <result property="method" column="method"/>
+        <result property="params" column="params"/>
+        <result property="ip" column="ip"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.petadoption.entity.SysLog">
+        INSERT INTO t_sys_log (user_id, username, operation, method, params, ip, create_time)
+        VALUES (#{userId}, #{username}, #{operation}, #{method}, #{params}, #{ip}, NOW())
+    </insert>
+
+    <select id="selectAll" resultMap="SysLogResultMap">
+        SELECT * FROM t_sys_log
+        <where>
+            <if test="keyword != null and keyword != ''">
+                username LIKE CONCAT('%', #{keyword}, '%') OR
+                operation LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>
