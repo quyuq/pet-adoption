@@ -15,4 +15,6 @@ public interface PostMapper {
     List<Post> selectByUserId(Integer userId);
 
     int incrementViewCount(Integer id);
+    
+    int incrementLikeCount(Integer id);
 }

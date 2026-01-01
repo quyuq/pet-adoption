@@ -6,8 +6,8 @@
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
         <result property="content" column="content"/>
-        <result property="imageUrl" column="image_url"/>
-        <result property="viewCount" column="view_count"/>
+        <result property="imageUrl" column="images"/>
+        <result property="viewCount" column="like_count"/>
         <result property="createTime" column="create_time"/>
         
         <association property="user" javaType="com.petadoption.entity.User">
@@ -18,7 +18,7 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.petadoption.entity.Post" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_post (user_id, content, image_url, view_count)
+        INSERT INTO t_post (user_id, content, images, like_count)
         VALUES (#{userId}, #{content}, #{imageUrl}, 0)
     </insert>
 
@@ -49,7 +49,11 @@
     </select>
     
     <update id="incrementViewCount">
-        UPDATE t_post SET view_count = view_count + 1 WHERE id = #{id}
+        UPDATE t_post SET like_count = like_count + 1 WHERE id = #{id}
+    </update>
+    
+    <update id="incrementLikeCount">
+        UPDATE t_post SET like_count = like_count + 1 WHERE id = #{id}
     </update>
 
 </mapper>

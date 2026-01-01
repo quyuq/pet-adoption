@@ -50,6 +50,7 @@
             <if test="phone != null">phone = #{phone},</if>
             <if test="email != null">email = #{email},</if>
             <if test="address != null">address = #{address},</if>
+            <if test="role != null">role = #{role},</if>
         </set>
         WHERE id = #{id}
     </update>

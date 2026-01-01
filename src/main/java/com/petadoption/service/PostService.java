@@ -13,4 +13,7 @@ public interface PostService {
     boolean deletePost(Integer id);
 
     Post getPostDetail(Integer id);
+
+    /** 点赞帖子 */
+    boolean likePost(Integer id);
 }

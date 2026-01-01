@@ -93,6 +93,9 @@
                     <a href="${pageContext.request.contextPath}/" class="nav-link">返回首页</a>
                     <a href="${pageContext.request.contextPath}/pet/list" class="nav-link">浏览宠物</a>
                     <a href="${pageContext.request.contextPath}/community/index" class="nav-link active">社区动态</a>
+                    <c:if test="${loginUser != null && loginUser.role == 2}">
+                        <a href="${pageContext.request.contextPath}/community/mine" class="nav-link">我的发布</a>
+                    </c:if>
                 </nav>
 
                 <div style="max-width: 700px; margin: 0 auto;">
@@ -115,7 +118,9 @@
                             </div>
 
                             <div class="post-content">
-                                ${post.content}
+                                <a href="${pageContext.request.contextPath}/community/detail/${post.id}" style="color:inherit;text-decoration:none">
+                                    ${post.content}
+                                </a>
                             </div>
 
                             <c:if test="${not empty post.imageUrl}">
@@ -125,8 +130,9 @@
                             </c:if>
 
                             <div class="post-footer">
-                                <span>👀 ${post.viewCount} 浏览</span>
-                                <span>暂无评论</span>
+                                <span>👍 <span id="like-count-${post.id}">${post.viewCount}</span> 赞</span>
+                                <span><a href="${pageContext.request.contextPath}/community/detail/${post.id}">查看详情</a></span>
+                                <button id="like-btn-${post.id}" class="btn" style="margin-left:8px;padding:4px 8px">点赞</button>
                             </div>
                         </div>
                     </c:forEach>
@@ -154,6 +160,22 @@
                         });
                     }
                 }
+
+                $(function(){
+                    // 点赞按钮绑定
+                    $('[id^="like-btn-"]').click(function(){
+                        var id = this.id.replace('like-btn-','');
+                        $.post('${pageContext.request.contextPath}/community/like', {id: id}, function(res){
+                            if(res.code === 200){
+                                var cntEl = $('#like-count-' + id);
+                                var cnt = parseInt(cntEl.text()) || 0;
+                                cntEl.text(cnt + 1);
+                            } else {
+                                alert(res.message);
+                            }
+                        });
+                    });
+                });
             </script>
         </body>
 

@@ -1,6 +1,23 @@
-# 忽略Maven编译目录
-target/
-# 忽略IDEA配置目录
+# Maven
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE
 .idea/
-# 忽略日志文件
+*.iml
+.vscode/
+
+# Logs
 *.log
+target/tomcat/logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.class
+*.war
+
+# Uploaded files
+/src/main/webapp/static/upload/

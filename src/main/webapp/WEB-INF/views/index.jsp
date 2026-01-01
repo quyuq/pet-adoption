@@ -124,6 +124,7 @@
                         <a href="${pageContext.request.contextPath}/" class="nav-link"
                             style="color:var(--primary-color);">首页</a>
                         <a href="${pageContext.request.contextPath}/pet/list" class="nav-link">寻找宠物</a>
+                        <a href="${pageContext.request.contextPath}/community/index" class="nav-link">社区动态</a>
                         <a href="#" class="nav-link">关于我们</a>
                         <div style="width:1px; height:20px; background:#e5e7eb; margin:0 10px;"></div>
                         <c:if test="${empty loginUser}">
@@ -164,6 +165,11 @@
                                         style="background:white; color:#374151; font-size:1.1rem; padding:12px 35px;">
                                         📝 注册领养
                                     </a>
+                                </c:if>
+                                <!-- 如果是已登录的个人用户，展示发布动态按钮 -->
+                                <c:if test="${not empty loginUser && loginUser.role == 2}">
+                                    <a href="${pageContext.request.contextPath}/community/publish" class="btn btn-secondary"
+                                       style="font-size:1.1rem; padding:12px 35px; background:#10b981; color:white;">✏️ 发布动态</a>
                                 </c:if>
                             </div>
                         </div>

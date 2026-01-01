@@ -40,7 +40,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post getPostDetail(Integer id) {
-        postMapper.incrementViewCount(id);
+        // 仅查询帖子详情，不自动修改点赞数（点赞由单独接口处理）
         return postMapper.selectById(id);
+    }
+
+    @Override
+    public boolean likePost(Integer id) {
+        return postMapper.incrementLikeCount(id) > 0;
     }
 }

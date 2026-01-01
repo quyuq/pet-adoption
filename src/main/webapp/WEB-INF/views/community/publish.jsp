@@ -48,6 +48,7 @@
             </header>
 
             <div class="publish-container">
+                <div style="margin-bottom:10px;color:#6b7280">注：仅个人用户可以发布社区动态，收容所管理员与系统管理员无法发布。</div>
                 <form id="publishForm">
                     <input type="hidden" name="imageUrl" id="imageUrl">
 
@@ -59,13 +60,13 @@
 
                     <div class="form-group">
                         <label>配图（可选）</label>
-                        <div class="upload-box" onclick="$('#fileInput').click()">
+                        <label class="upload-box" for="fileInput">
                             <div style="font-size:2rem;margin-bottom:10px">📷</div>
                             <p>点击上传图片</p>
-                            <input type="file" id="fileInput" style="display:none" accept="image/*"
+                            <input type="file" id="fileInput" name="fileInput" style="display:none" accept="image/*"
                                 onchange="uploadImage(this)">
-                            <img id="preview" class="preview-img">
-                        </div>
+                            <img id="preview" class="preview-img" alt="预览">
+                        </label>
                     </div>
 
                     <div style="display:flex;gap:15px">
@@ -103,13 +104,36 @@
 
             $('#publishForm').submit(function (e) {
                 e.preventDefault();
-                $.post('${pageContext.request.contextPath}/community/publish', $(this).serialize(), function (res) {
-                    if (res.code === 200) {
+                var $btn = $(this).find('button[type=submit]');
+                $btn.prop('disabled', true).text('发布中...');
+                console.log('提交数据：', $(this).serialize());
+
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/community/publish',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    dataType: 'json'
+                }).done(function (res) {
+                    console.log('服务器返回：', res);
+                    if (res && res.code === 200) {
                         alert('发布成功！');
                         window.location.href = '${pageContext.request.contextPath}/community/index';
+                    } else if (res) {
+                        alert(res.message || '发布失败');
                     } else {
-                        alert(res.message);
+                        alert('未知响应，可能服务器返回了非 JSON 内容');
                     }
+                }).fail(function (xhr, status, err) {
+                    console.error('请求失败：', status, err);
+                    // 如果是重定向到登录页，会收到 HTML，提示用户重新登录
+                    if (xhr && xhr.responseText && xhr.responseText.indexOf('<!DOCTYPE') !== -1) {
+                        alert('未登录或会话过期，请重新登录后再发布');
+                        window.location.href = '${pageContext.request.contextPath}/user/login';
+                    } else {
+                        alert('发布请求失败，请检查网络或稍后重试');
+                    }
+                }).always(function () {
+                    $btn.prop('disabled', false).text('发布');
                 });
             });
         </script>
